@@ -1,0 +1,260 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+
+
+
+#ifndef _DT_BINDINGS_CLK_MT6739_H
+#define _DT_BINDINGS_CLK_MT6739_H
+
+#define	CLK_TOP_CLK26M		0
+
+
+#define CLK_APMIXED_ARMPLL_LL		0	
+#define CLK_APMIXED_MAINPLL		1	
+#define CLK_APMIXED_MFGPLL		2	
+#define CLK_APMIXED_MMPLL		3	
+#define CLK_APMIXED_UNIVPLL		4	
+#define CLK_APMIXED_MSDCPLL		5	
+#define CLK_APMIXED_APLL1		6	
+#define CLK_APMIXED_NR_CLK		7
+
+
+
+#define CLK_TOP_SYSPLL			0	
+#define CLK_TOP_SYSPLL_D2		1	
+#define CLK_TOP_SYSPLL1_D2		2	
+#define CLK_TOP_SYSPLL1_D4		3	
+#define CLK_TOP_SYSPLL1_D8		4	
+#define CLK_TOP_SYSPLL1_D16		5	
+#define CLK_TOP_SYSPLL_D3		6	
+#define CLK_TOP_SYSPLL2_D2		7	
+#define CLK_TOP_SYSPLL2_D4		8	
+#define CLK_TOP_SYSPLL_D5		9	
+#define CLK_TOP_SYSPLL3_D2		10	
+#define CLK_TOP_SYSPLL3_D4		11	
+#define CLK_TOP_SYSPLL_D7		12	
+#define CLK_TOP_SYSPLL4_D2		13	
+#define CLK_TOP_SYSPLL4_D4		14	
+#define CLK_TOP_UNIVPLL			15	
+#define CLK_TOP_UNIVPLL_D26		16	
+#define CLK_TOP_UNIVPLL_48M_D2		17	
+#define CLK_TOP_UNIVPLL_48M_D4		18	
+#define CLK_TOP_UNIVPLL_48M_D8		19	
+#define CLK_TOP_UNIVPLL_D2		20	
+#define CLK_TOP_UNIVPLL1_D2		21	
+#define CLK_TOP_UNIVPLL1_D4		22	
+#define CLK_TOP_UNIVPLL_D3		23	
+#define CLK_TOP_UNIVPLL2_D2		24	
+#define CLK_TOP_UNIVPLL2_D4		25	
+#define CLK_TOP_UNIVPLL2_D8		26	
+#define CLK_TOP_UNIVPLL2_D32		27	
+#define CLK_TOP_UNIVPLL_D5		28	
+#define CLK_TOP_UNIVPLL3_D2		29	
+#define CLK_TOP_UNIVPLL3_D4		30	
+#define CLK_TOP_UNIVPLL3_D8		31	
+#define CLK_TOP_MMPLL			32	
+#define CLK_TOP_VENCPLL			33	
+#define CLK_TOP_MSDCPLL			34	
+#define CLK_TOP_MSDCPLL_D2		35	
+#define CLK_TOP_APLL1			36	
+#define CLK_TOP_APLL1_D2		37	
+#define CLK_TOP_APLL1_D4		38	
+#define CLK_TOP_APLL1_D8		39	
+#define CLK_TOP_DMPLL			40	
+#define CLK_TOP_AXI_SEL			41	
+#define CLK_TOP_MEM_SEL			42	
+#define CLK_TOP_DDRPHYCFG_SEL		43	
+#define CLK_TOP_MM_SEL			44	
+#define CLK_TOP_MFG_SEL			45	
+#define CLK_TOP_CAMTG_SEL		46	
+#define CLK_TOP_UART_SEL		47	
+#define CLK_TOP_SPI_SEL			48	
+#define CLK_TOP_MSDC50_0_HCLK_SEL	49	
+#define CLK_TOP_MSDC50_0_SEL		50	
+#define CLK_TOP_MSDC30_1_SEL		51	
+#define CLK_TOP_AUDIO_SEL		52	
+#define CLK_TOP_AUD_INTBUS_SEL		53	
+#define CLK_TOP_DBI0_SEL		54	
+#define CLK_TOP_SCAM_SEL		55	
+#define CLK_TOP_AUD_1_SEL		56	
+#define CLK_TOP_DISP_PWM_SEL		57	
+#define CLK_TOP_NFI2X_SEL		58	
+#define CLK_TOP_NFIECC_SEL		59	
+#define CLK_TOP_USB_TOP_SEL		60	
+#define CLK_TOP_SPM_SEL			61	
+#define CLK_TOP_I2C_SEL			62	
+#define CLK_TOP_SENIF_SEL		63	
+#define CLK_TOP_DXCC_SEL		64	
+#define CLK_TOP_CAMTG2_SEL		65	
+#define CLK_TOP_AUD_ENGEN1_SEL		66	
+#define CLK_TOP_NR_CLK			67
+
+
+
+#define CLK_AUDIO_AFE			0	
+#define CLK_AUDIO_22M			1	
+#define CLK_AUDIO_APLL_TUNER		2	
+#define CLK_AUDIO_ADC			3	
+#define CLK_AUDIO_DAC			4	
+#define CLK_AUDIO_DAC_PREDIS		5	
+#define CLK_AUDIO_TML			6	
+#define CLK_AUDIO_I2S1_BCLK		7	
+#define CLK_AUDIO_I2S2_BCLK		8	
+#define CLK_AUDIO_I2S3_BCLK		9	
+#define CLK_AUDIO_I2S4_BCLK		10	
+#define CLK_AUDIO_NR_CLK		11
+
+
+
+#define CLK_IMG_LARB2_SMI		0	
+#define CLK_IMG_CAM_SMI			1	
+#define CLK_IMG_CAM_CAM			2	
+#define CLK_IMG_SEN_TG			3	
+#define CLK_IMG_SEN_CAM			4	
+#define CLK_IMG_CAM_SV			5	
+#define CLK_IMG_SUFOD			6	
+#define CLK_IMG_FD			7	
+#define CLK_IMG_NR_CLK			8
+
+
+
+#define CLK_INFRA_PMIC_TMR		0	
+#define CLK_INFRA_PMIC_AP		1	
+#define CLK_INFRA_PMIC_MD		2	
+#define CLK_INFRA_PMIC_CONN		3	
+#define CLK_INFRA_SEJ			4	
+#define CLK_INFRA_APXGPT		5	
+#define CLK_INFRA_ICUSB			6	
+#define CLK_INFRA_GCE			7	
+#define CLK_INFRA_THERM			8	
+#define CLK_INFRA_I2C0			9	
+#define CLK_INFRA_I2C1			10	
+#define CLK_INFRA_I2C2			11	
+#define CLK_INFRA_I2C3			12	
+#define CLK_INFRA_PWM_HCLK		13	
+#define CLK_INFRA_PWM1			14	
+#define CLK_INFRA_PWM2			15	
+#define CLK_INFRA_PWM3			16	
+#define CLK_INFRA_PWM4			17	
+#define CLK_INFRA_PWM5			18	
+#define CLK_INFRA_PWM			19	
+#define CLK_INFRA_UART0			20	
+#define CLK_INFRA_UART1			21	
+#define CLK_INFRA_UART2			22	
+#define CLK_INFRA_UART3			23	
+#define CLK_INFRA_GCE_26M		24	
+#define CLK_INFRA_CQ_DMA_FPC		25	
+#define CLK_INFRA_BTIF			26	
+#define CLK_INFRA_SPI0			27	
+#define CLK_INFRA_MSDC0			28	
+#define CLK_INFRA_MSDC1			29	
+#define CLK_INFRA_NFIECC_312M		30	
+#define CLK_INFRA_DVFSRC		31	
+#define CLK_INFRA_GCPU			32	
+#define CLK_INFRA_TRNG			33	
+#define CLK_INFRA_AUXADC		34	
+#define CLK_INFRA_CPUM			35	
+#define CLK_INFRA_CCIF1_AP		36	
+#define CLK_INFRA_CCIF1_MD		37	
+#define CLK_INFRA_AUXADC_MD		38	
+#define CLK_INFRA_NFI			39	
+#define CLK_INFRA_AP_DMA		40	
+#define CLK_INFRA_XIU			41	
+#define CLK_INFRA_DEVICE_APC		42	
+#define CLK_INFRA_CCIF_AP		43	
+#define CLK_INFRA_DEBUGSYS		44	
+#define CLK_INFRA_AUDIO			45	
+#define CLK_INFRA_CCIF_MD		46	
+#define CLK_INFRA_DXCC_SEC_CORE		47	
+#define CLK_INFRA_DXCC_AO		48	
+#define CLK_INFRA_DRAMC_F26M		49	
+#define CLK_INFRA_RG_PWM_FBCLK6		50	
+#define CLK_INFRA_DISP_PWM		51	
+#define CLK_INFRA_CLDMA_BCLK		52	
+#define CLK_INFRA_AUDIO_26M_BCLK	53	
+#define CLK_INFRA_SPI1			54	
+#define CLK_INFRA_I2C4			55	
+#define CLK_INFRA_MODEM_TEMP_SHARE	56	
+#define CLK_INFRA_SPI2			57	
+#define CLK_INFRA_SPI3			58	
+#define CLK_INFRA_I2C5			59	
+#define CLK_INFRA_I2C5_ARBITER		60	
+#define CLK_INFRA_I2C5_IMM		61	
+#define CLK_INFRA_I2C1_ARBITER		62	
+#define CLK_INFRA_I2C1_IMM		63	
+#define CLK_INFRA_I2C2_ARBITER		64	
+#define CLK_INFRA_I2C2_IMM		65	
+#define CLK_INFRA_SPI4			66	
+#define CLK_INFRA_SPI5			67	
+#define CLK_INFRA_CQ_DMA		68	
+#define CLK_INFRA_MSDC0_SELF		69	
+#define CLK_INFRA_MSDC1_SELF		70	
+#define CLK_INFRA_MSDC2_SELF		71	
+#define CLK_INFRA_I2C6			72	
+#define CLK_INFRA_AP_MSDC0		73	
+#define CLK_INFRA_MD_MSDC0		74	
+#define CLK_INFRA_MSDC0_SRC		75	
+#define CLK_INFRA_MSDC1_SRC		76	
+#define CLK_INFRA_MSDC2_SRC		77	
+#define CLK_INFRA_PERI_DCM_RG_FORCE_CLKOFF 78	
+#define CLK_INFRA_NFI_1X                79      
+#define CLK_INFRA_NR_CLK		80
+
+
+
+#define CLK_MM_SMI_COMMON		0	
+#define CLK_MM_SMI_LARB0		1	
+#define CLK_MM_GALS_COMM0		2	
+#define CLK_MM_GALS_COMM1		3	
+#define CLK_MM_ISP_DL			4	
+#define CLK_MM_MDP_RDMA0		5	
+#define CLK_MM_MDP_RSZ0			6	
+#define CLK_MM_MDP_RSZ1			7	
+#define CLK_MM_MDP_TDSHP		8	
+#define CLK_MM_MDP_WROT0		9	
+#define CLK_MM_MDP_WDMA0		10	
+#define CLK_MM_FAKE_ENG			11	
+#define CLK_MM_DISP_OVL0		12	
+#define CLK_MM_DISP_RDMA0		13	
+#define CLK_MM_DISP_WDMA0		14	
+#define CLK_MM_DISP_COLOR0		15	
+#define CLK_MM_DISP_CCORR0		16	
+#define CLK_MM_DISP_AAL0		17	
+#define CLK_MM_DISP_GAMMA0		18	
+#define CLK_MM_DISP_DITHER0		19	
+#define CLK_MM_DSI_MM_CLOCK		20	
+#define CLK_MM_DSI_INTERF		21	
+#define CLK_MM_DBI_MM_CLOCK		22	
+#define CLK_MM_DBI_INTERF		23	
+#define CLK_MM_F26M_HRT			24	
+#define CLK_MM_CG0_B25			25	
+#define CLK_MM_CG0_B26			26	
+#define CLK_MM_CG0_B27			27	
+#define CLK_MM_CG0_B28			28	
+#define CLK_MM_CG0_B29			29	
+#define CLK_MM_CG0_B30			30	
+#define CLK_MM_CG0_B31			31	
+#define CLK_MM_NR_CLK			32
+
+
+
+#define CLK_VENC_SET0_LARB		0	
+#define CLK_VENC_SET1_VENC		1	
+#define CLK_VENC_SET2_JPGENC		2	
+#define CLK_VENC_SET3_VDEC		3	
+#define CLK_VENC_NR_CLK			4
+
+
+
+#define CLK_PERIAXI_DISABLE		0	
+#define CLK_PER_NR_CLK			1
+
+
+#define SCP_SYS_MFG0  0
+#define SCP_SYS_MFG1  1
+#define SCP_SYS_MD1  2
+#define SCP_SYS_CONN  3
+#define SCP_SYS_MM0  4
+#define SCP_SYS_ISP  5
+#define SCP_SYS_VEN  6
+#define SCP_NR_SYSS  7
+#endif
